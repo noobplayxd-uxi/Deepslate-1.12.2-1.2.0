@@ -1,0 +1,35 @@
+buildscript {
+    repositories {
+        mavenCentral()
+        maven { url "https://maven.cleanroommc.com" }
+    }
+    dependencies {
+        classpath "com.cleanroommc:cleanroom-gradle-plugin:1.5.1"
+    }
+}
+
+apply plugin: "com.cleanroommc.cleanroom"
+
+version = "1.0.0"
+group = "com.yourname.deepslateexpansion"
+archivesBaseName = "DeepslateExpansion"
+
+minecraft {
+    version = "1.12.2"
+    mappings = "stable_39"
+}
+
+repositories {
+    maven { url = "https://repo.spongepowered.org/maven/" }
+}
+
+dependencies {
+    compile("org.spongepowered:mixin:0.7.11-SNAPSHOT") {
+        exclude module: "launchwrapper"
+        exclude module: "guava"
+        exclude module: "gson"
+        exclude module: "commons-io"
+    }
+}
+
+sourceCompatibility = targetCompatibility = JavaVersion.VERSION_1_8

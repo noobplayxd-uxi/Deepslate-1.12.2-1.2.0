@@ -1,0 +1,16 @@
+[
+  {
+    "modid": "deepslateexpansion",
+    "name": "Deepslate Expansion",
+    "description": "Adds deepslate and deepslate ore variants to Minecraft 1.12.2. Designed to work with ViaVersion/ViaBackwards to enable extended world height and modern cave features.",
+    "version": "1.0.0",
+    "mcversion": "1.12.2",
+    "url": "",
+    "updateUrl": "",
+    "authorList": ["YourName"],
+    "credits": "Thanks to the Forge and ViaVersion communities.",
+    "logoFile": "",
+    "screenshots": [],
+    "dependencies": []
+  }
+]

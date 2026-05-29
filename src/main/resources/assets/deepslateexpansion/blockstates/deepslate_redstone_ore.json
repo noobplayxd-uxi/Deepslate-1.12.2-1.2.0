@@ -1,0 +1,5 @@
+{
+    "variants": {
+      "normal": { "model": "deepslateexpansion:deepslate_redstone_ore" }
+    }
+  }
