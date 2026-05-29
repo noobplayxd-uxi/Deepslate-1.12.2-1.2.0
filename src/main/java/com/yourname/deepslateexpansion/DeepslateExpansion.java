@@ -1,6 +1,6 @@
 package com.yourname.deepslateexpansion;
 
-import com.yourname.deepslateexpansion.blocks.ModBlocks;
+import com.yourname.deepslateexpansion.Blocks.ModBlocks;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
