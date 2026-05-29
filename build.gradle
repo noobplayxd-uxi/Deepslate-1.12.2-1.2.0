@@ -20,7 +20,7 @@ apply plugin: 'net.minecraftforge.gradle.forge'
 apply plugin: 'org.spongepowered.mixin'
 
 version = "1.0.0"
-group = "com.yourname.deepslateexpansion"   // keep this, it's your package
+group = "com.yourname.deepslateexpansion"   // keep as is – matches your package
 archivesBaseName = "DeepslateExpansion"
 
 sourceCompatibility = targetCompatibility = '1.8'
