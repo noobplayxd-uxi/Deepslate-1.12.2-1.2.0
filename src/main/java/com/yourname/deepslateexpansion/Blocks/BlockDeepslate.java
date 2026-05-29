@@ -1,4 +1,4 @@
-package com.yourname.deepslateexpansion.blocks;   // 1. Must match folder location
+package com.yourname.deepslateexpansion.Blocks;   // 1. Must match folder location
 
 // 2. Import what we need from Minecraft/Forge
 import net.minecraft.block.Block;
