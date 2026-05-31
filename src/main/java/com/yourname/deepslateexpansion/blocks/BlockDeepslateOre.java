@@ -1,4 +1,4 @@
-package com.yourname.deepslateexpansion.Blocks;
+package com.yourname.deepslateexpansion.blocks;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
