@@ -16,8 +16,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(NetHandlerPlayClient.class)
 public abstract class BlockIdOverrideMixin {
 
-    // Correct method name for 1.12.2 Forge
-    @Inject(method = "handleChunkData", at = @At("TAIL"))
+    // Use the guaranteed obfuscated name for handleChunkData in 1.12.2
+    @Inject(method = "func_184376_a", at = @At("TAIL"))
     private void onHandleChunkData(SPacketChunkData packet, CallbackInfo ci) {
         Minecraft mc = Minecraft.getMinecraft();
         if (mc.world == null) return;
@@ -27,13 +27,13 @@ public abstract class BlockIdOverrideMixin {
         Chunk chunk = mc.world.getChunkProvider().provideChunk(chunkX, chunkZ);
         if (chunk == null) return;
 
-        // This will now print in the console when chunks load
+        // This will appear in the launcher console / latest.log
         System.out.println("[DeepslateExpansion] Override mixin fired for chunk " + chunkX + ", " + chunkZ);
 
-        // Replace nether bricks with deepslate
+        // Replace nether bricks (ID 112) with deepslate
         replaceWrongBlock(chunk, Blocks.NETHER_BRICK, ModBlocks.deepslate);
 
-        // TODO: Add ore replacements when you identify their wrong block IDs
+        // TODO: Add ore replacements when you identify their wrong IDs
     }
 
     private void replaceWrongBlock(Chunk chunk, Block wrongBlock, Block correctBlock) {
