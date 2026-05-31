@@ -1,0 +1,18 @@
+{
+  "required": true,
+  "minVersion": "0.7.11",
+  "package": "com.yourname.deepslateexpansion.mixins",
+  "refmap": "mixins.deepslateexpansion.refmap.json",
+  "target": "@env(DEFAULT)",
+  "compatibilityLevel": "JAVA_8",
+  "mixins": [
+    "minecraft.world.WorldMixin",
+    "minecraft.world.WorldProviderMixin",
+    "minecraft.chunk.ChunkMixin"
+  ],
+  "client": [
+    "minecraft.client.network.NetHandlerPlayClientMixin",
+    "minecraft.client.network.BlockIdOverrideMixin"
+  ],
+  "server": []
+}
