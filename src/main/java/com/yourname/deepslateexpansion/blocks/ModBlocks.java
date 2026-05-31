@@ -6,7 +6,6 @@ import net.minecraft.item.ItemBlock;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.registry.ForgeRegistries;
 
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
@@ -43,7 +42,6 @@ public class ModBlocks {
             public int quantityDropped(Random random) {
                 return 4 + random.nextInt(2);
             }
-
             @Override
             public int quantityDroppedWithBonus(int fortune, Random random) {
                 if (fortune > 0) {
@@ -60,7 +58,6 @@ public class ModBlocks {
             public int quantityDropped(Random random) {
                 return 4 + random.nextInt(5);
             }
-
             @Override
             public int quantityDroppedWithBonus(int fortune, Random random) {
                 if (fortune > 0) {
@@ -84,17 +81,6 @@ public class ModBlocks {
             deepslateRedstoneOre.setRegistryName("deepslate_redstone_ore"),
             deepslateLapisOre.setRegistryName("deepslate_lapis_ore")
         );
-
-        // Force fixed numeric IDs
-        setBlockId(deepslate, 2000);
-        setBlockId(deepslateIronOre, 2001);
-        setBlockId(deepslateGoldOre, 2002);
-        setBlockId(deepslateCopperOre, 2003);
-        setBlockId(deepslateCoalOre, 2004);
-        setBlockId(deepslateDiamondOre, 2005);
-        setBlockId(deepslateEmeraldOre, 2006);
-        setBlockId(deepslateRedstoneOre, 2007);
-        setBlockId(deepslateLapisOre, 2008);
     }
 
     @SubscribeEvent
@@ -110,9 +96,5 @@ public class ModBlocks {
             new ItemBlock(deepslateRedstoneOre).setRegistryName("deepslate_redstone_ore"),
             new ItemBlock(deepslateLapisOre).setRegistryName("deepslate_lapis_ore")
         );
-    }
-
-    private static void setBlockId(Block block, int id) {
-        ForgeRegistries.BLOCKS.register(id, block.getRegistryName(), block);
     }
 }
