@@ -1,11 +1,7 @@
 package com.yourname.deepslateexpansion.network;
 
-import com.yourname.deepslateexpansion.mixins.minecraft.chunk.IChunkExtended;
 import io.netty.buffer.ByteBuf;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.multiplayer.ChunkProviderClient;
 import net.minecraft.network.PacketBuffer;
-import net.minecraft.world.chunk.Chunk;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
@@ -44,12 +40,10 @@ public class ExtendedChunkHandler implements IMessage, IMessageHandler<ExtendedC
         chunkZ = packet.readInt();
         groundUpContinuous = packet.readBoolean();
         sectionCount = packet.readVarInt();
-
         sectionY = new int[sectionCount];
         blockData = new byte[sectionCount][];
         blockLight = new byte[sectionCount][];
         skyLight = new byte[sectionCount][];
-
         for (int i = 0; i < sectionCount; i++) {
             sectionY[i] = packet.readInt();
             int blockDataLen = packet.readVarInt();
@@ -67,16 +61,13 @@ public class ExtendedChunkHandler implements IMessage, IMessageHandler<ExtendedC
     }
 
     @Override
-    public void toBytes(ByteBuf buf) {
-        // Not used on the client side
-    }
+    public void toBytes(ByteBuf buf) {}
 
     @Override
     @SideOnly(Side.CLIENT)
     public IMessage onMessage(ExtendedChunkHandler message, MessageContext ctx) {
-        // This handler will be fully implemented once we create a proxy plugin
-        // that sends the "extchunk" packet. For now it safely does nothing,
-        // allowing the mod to compile and run without errors.
+        // Will be implemented once the proxy sends extended chunks.
+        // Currently does nothing to allow compilation.
         return null;
     }
 }
