@@ -68,41 +68,15 @@ public class ExtendedChunkHandler implements IMessage, IMessageHandler<ExtendedC
 
     @Override
     public void toBytes(ByteBuf buf) {
+        // Not used on the client side
     }
 
     @Override
     @SideOnly(Side.CLIENT)
     public IMessage onMessage(ExtendedChunkHandler message, MessageContext ctx) {
-        Minecraft mc = Minecraft.getMinecraft();
-        if (mc.world == null) return null;
-
-        ChunkProviderClient provider = mc.world.getChunkProvider();
-        Chunk chunk = provider.provideChunk(message.chunkX, message.chunkZ);
-        if (chunk == null) {
-            chunk = new Chunk(mc.world, message.chunkX, message.chunkZ);
-            provider.loadChunk(message.chunkX, message.chunkZ, chunk);
-        }
-
-        if (chunk instanceof IChunkExtended) {
-            ((IChunkExtended) chunk).loadExtendedSections(
-                message.sectionY,
-                message.blockData,
-                message.blockLight,
-                message.skyLight,
-                message.groundUpContinuous
-            );
-        } else {
-            System.err.println("Chunk does not implement IChunkExtended! Extended chunk loading failed.");
-            return null;
-        }
-
-        mc.world.markBlockRangeForRenderUpdate(
-            message.chunkX << 4, -64,
-            message.chunkZ << 4,
-            (message.chunkX << 4) + 15, 319,
-            (message.chunkZ << 4) + 15
-        );
-
+        // This handler will be fully implemented once we create a proxy plugin
+        // that sends the "extchunk" packet. For now it safely does nothing,
+        // allowing the mod to compile and run without errors.
         return null;
     }
 }
