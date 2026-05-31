@@ -17,7 +17,7 @@ buildscript {
 }
 
 apply plugin: 'net.minecraftforge.gradle.forge'
-// apply plugin: 'org.spongepowered.mixin'   <-- removed, since no mixins now
+apply plugin: 'org.spongepowered.mixin'          // <-- Mixin plugin enabled
 
 version = "1.0.0"
 group = "com.yourname.deepslateexpansion"
@@ -41,12 +41,18 @@ repositories {
     }
 }
 
-// The Mixin dependency is removed; no mixins to compile
 dependencies {
-    // no mixin dependency here
+    compile('org.spongepowered:mixin:0.7.11-SNAPSHOT') {   // <-- Mixin library
+        exclude module: 'launchwrapper'
+        exclude module: 'guava'
+        exclude module: 'gson'
+        exclude module: 'commons-io'
+    }
 }
 
-// mixin { ... } block removed
+mixin {                                                 // <-- Mixin config
+    add sourceSets.main, "mixins.deepslateexpansion.refmap.json"
+}
 
 processResources {
     inputs.property "version", project.version
