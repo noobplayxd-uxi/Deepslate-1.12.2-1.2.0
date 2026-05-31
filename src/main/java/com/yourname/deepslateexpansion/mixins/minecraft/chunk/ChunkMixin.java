@@ -1,6 +1,7 @@
 package com.yourname.deepslateexpansion.mixins.minecraft.chunk;
 
 import net.minecraft.world.chunk.Chunk;
+import org.spongepowered.asm.mixin.injection.Constant;
 import net.minecraft.world.chunk.storage.ExtendedBlockStorage;
 import net.minecraft.world.World;
 import net.minecraft.util.math.BlockPos;
