@@ -26,6 +26,9 @@ public class DeepslateReplacer {
         Minecraft mc = Minecraft.getMinecraft();
         if (mc.world == null || mc.player == null) return;
 
+        // Debug message – watch the console to confirm the replacer is running
+        System.out.println("[DeepslateExpansion] Tick scanner running. Ticks: " + tickCounter);
+
         int radius = 4;   // chunks around the player
         int playerChunkX = mc.player.chunkCoordX;
         int playerChunkZ = mc.player.chunkCoordZ;
