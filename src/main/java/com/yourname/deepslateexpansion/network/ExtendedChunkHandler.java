@@ -40,10 +40,12 @@ public class ExtendedChunkHandler implements IMessage, IMessageHandler<ExtendedC
         chunkZ = packet.readInt();
         groundUpContinuous = packet.readBoolean();
         sectionCount = packet.readVarInt();
+
         sectionY = new int[sectionCount];
         blockData = new byte[sectionCount][];
         blockLight = new byte[sectionCount][];
         skyLight = new byte[sectionCount][];
+
         for (int i = 0; i < sectionCount; i++) {
             sectionY[i] = packet.readInt();
             int blockDataLen = packet.readVarInt();
@@ -61,13 +63,15 @@ public class ExtendedChunkHandler implements IMessage, IMessageHandler<ExtendedC
     }
 
     @Override
-    public void toBytes(ByteBuf buf) {}
+    public void toBytes(ByteBuf buf) {
+        // Not used on the client
+    }
 
     @Override
     @SideOnly(Side.CLIENT)
     public IMessage onMessage(ExtendedChunkHandler message, MessageContext ctx) {
-        // Will be implemented once the proxy sends extended chunks.
-        // Currently does nothing to allow compilation.
+        // Will be fully implemented once the proxy plugin sends the extended chunk packet.
+        // For now it does nothing, allowing compilation to succeed.
         return null;
     }
 }
