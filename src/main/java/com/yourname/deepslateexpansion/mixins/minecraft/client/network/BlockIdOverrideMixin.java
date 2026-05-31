@@ -26,10 +26,14 @@ public abstract class BlockIdOverrideMixin {
         Chunk chunk = mc.world.getChunkProvider().provideChunk(chunkX, chunkZ);
         if (chunk == null) return;
 
+        // Debug message – check your console to confirm the mixin is firing
+        System.out.println("[DeepslateExpansion] Override mixin running for chunk " + chunkX + ", " + chunkZ);
+
         // Replace nether bricks with deepslate
         replaceWrongBlock(chunk, Blocks.NETHER_BRICK, ModBlocks.deepslate);
 
-        // Add more ore overrides later
+        // TODO: Add ore replacements when you identify which wrong IDs they map to.
+        // Example: replaceWrongBlock(chunk, Blocks.STONE, ModBlocks.deepslateIronOre);
     }
 
     private void replaceWrongBlock(Chunk chunk, Block wrongBlock, Block correctBlock) {
