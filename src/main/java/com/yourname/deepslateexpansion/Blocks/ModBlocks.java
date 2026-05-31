@@ -1,4 +1,4 @@
-package com.yourname.deepslateexpansion.Blocks;
+package com.yourname.deepslateexpansion.blocks;
 
 import net.minecraft.block.Block;
 import net.minecraft.item.Item;
@@ -6,6 +6,7 @@ import net.minecraft.item.ItemBlock;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.registries.GameData;
 
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
@@ -73,30 +74,45 @@ public class ModBlocks {
     @SubscribeEvent
     public static void registerBlocks(RegistryEvent.Register<Block> event) {
         event.getRegistry().registerAll(
-            deepslate,
-            deepslateIronOre,
-            deepslateGoldOre,
-            deepslateCopperOre,
-            deepslateCoalOre,
-            deepslateDiamondOre,
-            deepslateEmeraldOre,
-            deepslateRedstoneOre,
-            deepslateLapisOre
+            deepslate.setRegistryName("deepslate"),
+            deepslateIronOre.setRegistryName("deepslate_iron_ore"),
+            deepslateGoldOre.setRegistryName("deepslate_gold_ore"),
+            deepslateCopperOre.setRegistryName("deepslate_copper_ore"),
+            deepslateCoalOre.setRegistryName("deepslate_coal_ore"),
+            deepslateDiamondOre.setRegistryName("deepslate_diamond_ore"),
+            deepslateEmeraldOre.setRegistryName("deepslate_emerald_ore"),
+            deepslateRedstoneOre.setRegistryName("deepslate_redstone_ore"),
+            deepslateLapisOre.setRegistryName("deepslate_lapis_ore")
         );
+
+        // Force fixed numeric IDs
+        setBlockId(deepslate, 2000);
+        setBlockId(deepslateIronOre, 2001);
+        setBlockId(deepslateGoldOre, 2002);
+        setBlockId(deepslateCopperOre, 2003);
+        setBlockId(deepslateCoalOre, 2004);
+        setBlockId(deepslateDiamondOre, 2005);
+        setBlockId(deepslateEmeraldOre, 2006);
+        setBlockId(deepslateRedstoneOre, 2007);
+        setBlockId(deepslateLapisOre, 2008);
     }
 
     @SubscribeEvent
     public static void registerItems(RegistryEvent.Register<Item> event) {
         event.getRegistry().registerAll(
-            new ItemBlock(deepslate).setRegistryName(deepslate.getRegistryName()),
-            new ItemBlock(deepslateIronOre).setRegistryName(deepslateIronOre.getRegistryName()),
-            new ItemBlock(deepslateGoldOre).setRegistryName(deepslateGoldOre.getRegistryName()),
-            new ItemBlock(deepslateCopperOre).setRegistryName(deepslateCopperOre.getRegistryName()),
-            new ItemBlock(deepslateCoalOre).setRegistryName(deepslateCoalOre.getRegistryName()),
-            new ItemBlock(deepslateDiamondOre).setRegistryName(deepslateDiamondOre.getRegistryName()),
-            new ItemBlock(deepslateEmeraldOre).setRegistryName(deepslateEmeraldOre.getRegistryName()),
-            new ItemBlock(deepslateRedstoneOre).setRegistryName(deepslateRedstoneOre.getRegistryName()),
-            new ItemBlock(deepslateLapisOre).setRegistryName(deepslateLapisOre.getRegistryName())
+            new ItemBlock(deepslate).setRegistryName("deepslate"),
+            new ItemBlock(deepslateIronOre).setRegistryName("deepslate_iron_ore"),
+            new ItemBlock(deepslateGoldOre).setRegistryName("deepslate_gold_ore"),
+            new ItemBlock(deepslateCopperOre).setRegistryName("deepslate_copper_ore"),
+            new ItemBlock(deepslateCoalOre).setRegistryName("deepslate_coal_ore"),
+            new ItemBlock(deepslateDiamondOre).setRegistryName("deepslate_diamond_ore"),
+            new ItemBlock(deepslateEmeraldOre).setRegistryName("deepslate_emerald_ore"),
+            new ItemBlock(deepslateRedstoneOre).setRegistryName("deepslate_redstone_ore"),
+            new ItemBlock(deepslateLapisOre).setRegistryName("deepslate_lapis_ore")
         );
+    }
+
+    private static void setBlockId(Block block, int id) {
+        GameData.getBlockRegistry().add(id, block.getRegistryName(), block);
     }
 }
