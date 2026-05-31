@@ -27,6 +27,7 @@ public class ModBlocks {
     public static Block deepslateLapisOre;
 
     public static void init() {
+        // Constructors already set the registry name via setRegistryName()
         deepslate = new BlockDeepslate();
 
         deepslateIronOre   = new BlockDeepslateOre("deepslate_iron_ore",    Item.getItemFromBlock(Blocks.IRON_ORE), 1);
@@ -68,33 +69,34 @@ public class ModBlocks {
         };
     }
 
+    // Register blocks – no additional .setRegistryName() calls
     @SubscribeEvent
     public static void registerBlocks(RegistryEvent.Register<Block> event) {
         event.getRegistry().registerAll(
-            deepslate.setRegistryName("deepslate"),
-            deepslateIronOre.setRegistryName("deepslate_iron_ore"),
-            deepslateGoldOre.setRegistryName("deepslate_gold_ore"),
-            deepslateCopperOre.setRegistryName("deepslate_copper_ore"),
-            deepslateCoalOre.setRegistryName("deepslate_coal_ore"),
-            deepslateDiamondOre.setRegistryName("deepslate_diamond_ore"),
-            deepslateEmeraldOre.setRegistryName("deepslate_emerald_ore"),
-            deepslateRedstoneOre.setRegistryName("deepslate_redstone_ore"),
-            deepslateLapisOre.setRegistryName("deepslate_lapis_ore")
+            deepslate,
+            deepslateIronOre,
+            deepslateGoldOre,
+            deepslateCopperOre,
+            deepslateCoalOre,
+            deepslateDiamondOre,
+            deepslateEmeraldOre,
+            deepslateRedstoneOre,
+            deepslateLapisOre
         );
     }
 
     @SubscribeEvent
     public static void registerItems(RegistryEvent.Register<Item> event) {
         event.getRegistry().registerAll(
-            new ItemBlock(deepslate).setRegistryName("deepslate"),
-            new ItemBlock(deepslateIronOre).setRegistryName("deepslate_iron_ore"),
-            new ItemBlock(deepslateGoldOre).setRegistryName("deepslate_gold_ore"),
-            new ItemBlock(deepslateCopperOre).setRegistryName("deepslate_copper_ore"),
-            new ItemBlock(deepslateCoalOre).setRegistryName("deepslate_coal_ore"),
-            new ItemBlock(deepslateDiamondOre).setRegistryName("deepslate_diamond_ore"),
-            new ItemBlock(deepslateEmeraldOre).setRegistryName("deepslate_emerald_ore"),
-            new ItemBlock(deepslateRedstoneOre).setRegistryName("deepslate_redstone_ore"),
-            new ItemBlock(deepslateLapisOre).setRegistryName("deepslate_lapis_ore")
+            new ItemBlock(deepslate).setRegistryName(deepslate.getRegistryName()),
+            new ItemBlock(deepslateIronOre).setRegistryName(deepslateIronOre.getRegistryName()),
+            new ItemBlock(deepslateGoldOre).setRegistryName(deepslateGoldOre.getRegistryName()),
+            new ItemBlock(deepslateCopperOre).setRegistryName(deepslateCopperOre.getRegistryName()),
+            new ItemBlock(deepslateCoalOre).setRegistryName(deepslateCoalOre.getRegistryName()),
+            new ItemBlock(deepslateDiamondOre).setRegistryName(deepslateDiamondOre.getRegistryName()),
+            new ItemBlock(deepslateEmeraldOre).setRegistryName(deepslateEmeraldOre.getRegistryName()),
+            new ItemBlock(deepslateRedstoneOre).setRegistryName(deepslateRedstoneOre.getRegistryName()),
+            new ItemBlock(deepslateLapisOre).setRegistryName(deepslateLapisOre.getRegistryName())
         );
     }
 }
