@@ -6,7 +6,7 @@ import net.minecraft.item.ItemBlock;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.registry.GameData;
+import net.minecraftforge.fml.common.registry.ForgeRegistries;
 
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
@@ -113,6 +113,6 @@ public class ModBlocks {
     }
 
     private static void setBlockId(Block block, int id) {
-        GameData.getBlockRegistry().register(id, block.getRegistryName(), block);
+        ForgeRegistries.BLOCKS.register(id, block.getRegistryName(), block);
     }
 }
