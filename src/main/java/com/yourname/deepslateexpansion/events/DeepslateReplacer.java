@@ -21,15 +21,15 @@ public class DeepslateReplacer {
         if (event.phase != TickEvent.Phase.END) return;
 
         tickCounter++;
-        if (tickCounter % 20 != 0) return;   // run once per second
+        if (tickCounter % 20 != 0) return;   // once per second
 
         Minecraft mc = Minecraft.getMinecraft();
         if (mc.world == null || mc.player == null) return;
 
-        // Debug message – watch the console to confirm the replacer is running
-        System.out.println("[DeepslateExpansion] Tick scanner running. Ticks: " + tickCounter);
+        // Only replace in the Overworld (preserves Nether fortresses)
+        if (mc.player.dimension != 0) return;
 
-        int radius = 4;   // chunks around the player
+        int radius = 4;
         int playerChunkX = mc.player.chunkCoordX;
         int playerChunkZ = mc.player.chunkCoordZ;
 
@@ -37,19 +37,35 @@ public class DeepslateReplacer {
             for (int dz = -radius; dz <= radius; dz++) {
                 Chunk chunk = mc.world.getChunkProvider().provideChunk(playerChunkX + dx, playerChunkZ + dz);
                 if (chunk != null && !chunk.isEmpty()) {
-                    replaceWrongBlock(chunk, Blocks.NETHER_BRICK, ModBlocks.deepslate);
-                    // TODO: Add ore replacements later
+                    // Replace nether bricks with deepslate (only below Y=0)
+                    replaceWrongBlockBelowY(chunk, 0, Blocks.NETHER_BRICK, ModBlocks.deepslate);
+
+                    // Replace vanilla ores with deepslate ores (only below Y=0)
+                    replaceWrongBlockBelowY(chunk, 0, Blocks.IRON_ORE, ModBlocks.deepslateIronOre);
+                    replaceWrongBlockBelowY(chunk, 0, Blocks.GOLD_ORE, ModBlocks.deepslateGoldOre);
+                    replaceWrongBlockBelowY(chunk, 0, Blocks.COAL_ORE, ModBlocks.deepslateCoalOre);
+                    replaceWrongBlockBelowY(chunk, 0, Blocks.DIAMOND_ORE, ModBlocks.deepslateDiamondOre);
+                    replaceWrongBlockBelowY(chunk, 0, Blocks.EMERALD_ORE, ModBlocks.deepslateEmeraldOre);
+                    replaceWrongBlockBelowY(chunk, 0, Blocks.REDSTONE_ORE, ModBlocks.deepslateRedstoneOre);
+                    replaceWrongBlockBelowY(chunk, 0, Blocks.LAPIS_ORE, ModBlocks.deepslateLapisOre);
+
+                    // Copper ore might not map to a vanilla ore; you'll have to find its fallback manually.
+                    // Once you find what block it appears as (e.g., stone), add a line like:
+                    // replaceWrongBlockBelowY(chunk, 0, Blocks.STONE, ModBlocks.deepslateCopperOre);
                 }
             }
         }
     }
 
-    private void replaceWrongBlock(Chunk chunk, Block wrongBlock, Block correctBlock) {
+    /**
+     * Replaces all occurrences of {@code wrongBlock} with {@code correctBlock}
+     * only at Y levels strictly less than {@code maxY}.
+     */
+    private void replaceWrongBlockBelowY(Chunk chunk, int maxY, Block wrongBlock, Block correctBlock) {
         int minY = -64;
-        int maxY = 319;
         for (int x = 0; x < 16; x++) {
             for (int z = 0; z < 16; z++) {
-                for (int y = minY; y <= maxY; y++) {
+                for (int y = minY; y < maxY; y++) {   // only Y < maxY
                     BlockPos pos = new BlockPos(x, y, z);
                     if (chunk.getBlockState(pos).getBlock() == wrongBlock) {
                         chunk.setBlockState(pos, correctBlock.getDefaultState());
