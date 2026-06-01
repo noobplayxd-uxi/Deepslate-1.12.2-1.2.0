@@ -11,10 +11,15 @@ import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
+import java.util.HashSet;
+import java.util.Set;
+
 @SideOnly(Side.CLIENT)
 public class DeepslateReplacer {
 
     private int tickCounter = 0;
+    // Cache of chunk coordinates that have already been corrected
+    private final Set<Long> correctedChunks = new HashSet<>();
 
     @SubscribeEvent
     public void onClientTick(TickEvent.ClientTickEvent event) {
@@ -26,8 +31,7 @@ public class DeepslateReplacer {
         Minecraft mc = Minecraft.getMinecraft();
         if (mc.world == null || mc.player == null) return;
 
-        // Only replace in the Overworld (dimension 0)
-        // This preserves Nether fortresses and other nether brick structures.
+        // Only Overworld – preserves Nether fortresses
         if (mc.player.dimension != 0) return;
 
         int radius = 4;
@@ -36,21 +40,20 @@ public class DeepslateReplacer {
 
         for (int dx = -radius; dx <= radius; dx++) {
             for (int dz = -radius; dz <= radius; dz++) {
-                Chunk chunk = mc.world.getChunkProvider().provideChunk(playerChunkX + dx, playerChunkZ + dz);
+                int cx = playerChunkX + dx;
+                int cz = playerChunkZ + dz;
+                long key = (long)cx << 32 | (cz & 0xFFFFFFFFL);
+
+                // Skip if already corrected
+                if (correctedChunks.contains(key)) continue;
+
+                Chunk chunk = mc.world.getChunkProvider().provideChunk(cx, cz);
                 if (chunk != null && !chunk.isEmpty()) {
-                    // Replace nether bricks with deepslate (all Y levels, Overworld only)
+                    // Replace nether bricks with deepslate (Overworld only)
                     replaceWrongBlock(chunk, Blocks.NETHER_BRICK, ModBlocks.deepslate);
 
-                    // Replace vanilla ores with deepslate ores (add as you identify them)
-                    // These will only affect ores that the proxy maps to vanilla variants.
-                    replaceWrongBlock(chunk, Blocks.IRON_ORE, ModBlocks.deepslateIronOre);
-                    replaceWrongBlock(chunk, Blocks.GOLD_ORE, ModBlocks.deepslateGoldOre);
-                    replaceWrongBlock(chunk, Blocks.COAL_ORE, ModBlocks.deepslateCoalOre);
-                    replaceWrongBlock(chunk, Blocks.DIAMOND_ORE, ModBlocks.deepslateDiamondOre);
-                    replaceWrongBlock(chunk, Blocks.EMERALD_ORE, ModBlocks.deepslateEmeraldOre);
-                    replaceWrongBlock(chunk, Blocks.REDSTONE_ORE, ModBlocks.deepslateRedstoneOre);
-                    replaceWrongBlock(chunk, Blocks.LAPIS_ORE, ModBlocks.deepslateLapisOre);
-                    // Copper ore may need a separate fallback (e.g., Blocks.STONE) – find it with F3+H.
+                    // Mark as corrected
+                    correctedChunks.add(key);
                 }
             }
         }
