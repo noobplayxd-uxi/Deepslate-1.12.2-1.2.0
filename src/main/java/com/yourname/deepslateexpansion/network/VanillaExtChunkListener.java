@@ -2,15 +2,13 @@ package com.yourname.deepslateexpansion.network;
 
 import com.yourname.deepslateexpansion.mixins.minecraft.chunk.IChunkExtended;
 import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ChunkProviderClient;
-import net.minecraft.client.network.NetHandlerPlayClient;
 import net.minecraft.network.PacketBuffer;
-import net.minecraft.network.play.server.SPacketCustomPayload;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.network.FMLNetworkEvent.ClientCustomPacketEvent;
+import net.minecraftforge.fml.common.network.internal.FMLProxyPacket;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -19,13 +17,12 @@ public class VanillaExtChunkListener {
 
     @SubscribeEvent
     public void onCustomPacket(ClientCustomPacketEvent event) {
-        // Vanilla custom payload packet
-        if (event.getPacket() instanceof SPacketCustomPayload) {
-            SPacketCustomPayload packet = (SPacketCustomPayload) event.getPacket();
-            if ("extchunk".equals(packet.getChannelName())) {
-                handleExtendedChunk(packet.getBufferData());
-                event.setCanceled(true); // no other handler needs this
-            }
+        // FMLProxyPacket wraps the actual vanilla packet
+        FMLProxyPacket proxyPacket = event.getPacket();
+        // The channel name is stored in the packet
+        if ("extchunk".equals(proxyPacket.channel())) {
+            handleExtendedChunk(new PacketBuffer(proxyPacket.payload()));
+            event.setCanceled(true);
         }
     }
 
