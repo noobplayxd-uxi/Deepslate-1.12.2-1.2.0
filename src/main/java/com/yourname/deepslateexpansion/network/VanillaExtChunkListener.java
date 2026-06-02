@@ -1,10 +1,11 @@
 package com.yourname.deepslateexpansion.network;
 
 import com.yourname.deepslateexpansion.mixins.minecraft.chunk.IChunkExtended;
-import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ChunkProviderClient;
 import net.minecraft.network.PacketBuffer;
+import net.minecraft.network.play.client.CPacketCustomPayload;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.network.FMLNetworkEvent.ClientCustomPacketEvent;
@@ -15,13 +16,31 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 @SideOnly(Side.CLIENT)
 public class VanillaExtChunkListener {
 
+    private static boolean channelRegistered = false;
+
+    /**
+     * Call this once after the player joins a world (e.g. in DeepslateExpansion.init()
+     * or using a PlayerEvent.PlayerLoggedInEvent).
+     */
+    public static void registerExtChunkChannel() {
+        if (channelRegistered) return;
+        Minecraft mc = Minecraft.getMinecraft();
+        if (mc.getConnection() != null) {
+            PacketBuffer buffer = new PacketBuffer(Unpooled.buffer());
+            buffer.writeString("extchunk");
+            CPacketCustomPayload registerPacket = new CPacketCustomPayload("REGISTER", buffer);
+            mc.getConnection().sendPacket(registerPacket);
+            channelRegistered = true;
+            System.out.println("[DeepslateExpansion] Registered extchunk channel with proxy.");
+        }
+    }
+
     @SubscribeEvent
     public void onCustomPacket(ClientCustomPacketEvent event) {
-        // FMLProxyPacket wraps the actual vanilla packet
         FMLProxyPacket proxyPacket = event.getPacket();
-        // The channel name is stored in the packet
         if ("extchunk".equals(proxyPacket.channel())) {
-            handleExtendedChunk(new PacketBuffer(proxyPacket.payload()));
+            System.out.println("[DeepslateExpansion] Received extchunk packet. Payload size: " + proxyPacket.payload().readableBytes());
+            handleExtendedChunk(new PacketBuffer(proxyPacket.payload().copy()));
             event.setCanceled(true);
         }
     }
@@ -66,6 +85,7 @@ public class VanillaExtChunkListener {
             if (chunk instanceof IChunkExtended) {
                 ((IChunkExtended) chunk).loadExtendedSections(
                     sectionY, blockData, blockLight, skyLight, groundUp);
+                System.out.println("[DeepslateExpansion] Extended sections loaded for chunk " + chunkX + "," + chunkZ);
             }
 
         } catch (Exception e) {
