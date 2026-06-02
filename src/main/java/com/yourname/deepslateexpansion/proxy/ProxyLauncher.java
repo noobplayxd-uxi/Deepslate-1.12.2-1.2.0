@@ -1,49 +1,71 @@
 package com.yourname.deepslateexpansion.proxy;
 
 import java.io.*;
-import java.net.*;
+import java.nio.file.*;
 
 public class ProxyLauncher {
 
     private static Process proxyProcess;
 
-    public static void startProxy() throws IOException {
-        // Extract embedded proxy files to a temporary folder
-        File proxyDir = new File(System.getProperty("java.io.tmpdir"), "deepslateproxy");
-        proxyDir.mkdirs();
+    /**
+     * Extracts the embedded proxy files (BungeeCord, plugins, config) from the mod's resources
+     * to a temporary folder and starts the proxy server.
+     */
+    public static void startProxy() {
+        try {
+            // Create a temporary directory for the proxy
+            Path proxyDir = Files.createTempDirectory("deepslateproxy");
+            File dir = proxyDir.toFile();
+            dir.mkdirs();
 
-        // Copy BungeeCord.jar, plugins, and config from mod resources to proxyDir
-        extractResource("/proxy/BungeeCord.jar", new File(proxyDir, "BungeeCord.jar"));
-        extractResource("/proxy/plugins/ViaVersion.jar", new File(proxyDir, "plugins/ViaVersion.jar"));
-        extractResource("/proxy/plugins/ViaBackwards.jar", new File(proxyDir, "plugins/ViaBackwards.jar"));
-        extractResource("/proxy/plugins/DeepslateProxyPlugin.jar", new File(proxyDir, "plugins/DeepslateProxyPlugin.jar"));
-        extractResource("/proxy/config.yml", new File(proxyDir, "config.yml"));
+            // List of resources to extract (source path in JAR → destination file name in proxy dir)
+            String[][] resources = {
+                { "/proxy/BungeeCord.jar", "BungeeCord.jar" },
+                { "/proxy/config.yml", "config.yml" },
+                { "/proxy/plugins/ViaVersion.jar", "plugins/ViaVersion.jar" },
+                { "/proxy/plugins/ViaBackwards.jar", "plugins/ViaBackwards.jar" },
+                { "/proxy/plugins/DeepslateProxyPlugin.jar", "plugins/DeepslateProxyPlugin.jar" }
+            };
 
-        // Start the proxy
-        ProcessBuilder pb = new ProcessBuilder(
-            "java", "-jar", "BungeeCord.jar"
-        );
-        pb.directory(proxyDir);
-        proxyProcess = pb.start();
+            // Extract each resource
+            for (String[] entry : resources) {
+                extractResource(entry[0], new File(dir, entry[1]));
+            }
+
+            // Launch the proxy
+            ProcessBuilder pb = new ProcessBuilder(
+                "java", "-jar", "BungeeCord.jar"
+            );
+            pb.directory(dir);
+            // Redirect output to the game's log (optional – you can remove these lines if you don't want clutter)
+            pb.redirectOutput(ProcessBuilder.Redirect.INHERIT);
+            pb.redirectError(ProcessBuilder.Redirect.INHERIT);
+
+            proxyProcess = pb.start();
+            System.out.println("[DeepslateExpansion] Local proxy started successfully.");
+        } catch (Exception e) {
+            System.err.println("[DeepslateExpansion] Failed to start local proxy:");
+            e.printStackTrace();
+        }
     }
 
+    /**
+     * Stops the proxy when the game shuts down (call this in a shutdown hook or mod disable event).
+     */
     public static void stopProxy() {
-        if (proxyProcess != null) {
+        if (proxyProcess != null && proxyProcess.isAlive()) {
             proxyProcess.destroy();
+            System.out.println("[DeepslateExpansion] Local proxy stopped.");
         }
     }
 
     private static void extractResource(String resourcePath, File destination) throws IOException {
         try (InputStream in = ProxyLauncher.class.getResourceAsStream(resourcePath)) {
-            if (in == null) throw new FileNotFoundException("Resource not found: " + resourcePath);
-            destination.getParentFile().mkdirs();
-            try (FileOutputStream out = new FileOutputStream(destination)) {
-                byte[] buffer = new byte[1024];
-                int len;
-                while ((len = in.read(buffer)) != -1) {
-                    out.write(buffer, 0, len);
-                }
+            if (in == null) {
+                throw new FileNotFoundException("Resource not found: " + resourcePath);
             }
+            destination.getParentFile().mkdirs();
+            Files.copy(in, destination.toPath(), StandardCopyOption.REPLACE_EXISTING);
         }
     }
 }
