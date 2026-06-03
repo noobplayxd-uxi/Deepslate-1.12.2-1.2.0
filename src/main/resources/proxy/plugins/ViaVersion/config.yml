@@ -1,2 +1,3 @@
-chunk-extended: true
-chunk-extended-channel: extchunk
+chunk-extended:
+  enabled: true
+  channel: extchunk
