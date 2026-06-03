@@ -9,10 +9,12 @@ listeners:
     proxy_protocol: false
     tab_list: GLOBAL_PING
     query_enabled: false
+    custom_channel_extchunk: true   # ← REQUIRED for extended chunks
 
 servers:
   default:
-    address: localhost:25565
+    # Replace with the server you actually want to join
+    address: SKilLMcs4.aTERNos.Me:16224
     restricted: false
 
 ip_forward: false
