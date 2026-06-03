@@ -18,10 +18,6 @@ public class VanillaExtChunkListener {
 
     private static boolean channelRegistered = false;
 
-    /**
-     * Call this once after the player joins a world (e.g. in DeepslateExpansion.init()
-     * or using a PlayerEvent.PlayerLoggedInEvent).
-     */
     public static void registerExtChunkChannel() {
         if (channelRegistered) return;
         Minecraft mc = Minecraft.getMinecraft();
@@ -86,8 +82,13 @@ public class VanillaExtChunkListener {
                 ((IChunkExtended) chunk).loadExtendedSections(
                     sectionY, blockData, blockLight, skyLight, groundUp);
                 System.out.println("[DeepslateExpansion] Extended sections loaded for chunk " + chunkX + "," + chunkZ);
-            }
 
+                // Force re‑render so the blocks become visible
+                int blockX = chunkX << 4;
+                int blockZ = chunkZ << 4;
+                mc.world.markBlockRangeForRenderUpdate(blockX, -64, blockZ,
+                                                       blockX + 15, 319, blockZ + 15);
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
