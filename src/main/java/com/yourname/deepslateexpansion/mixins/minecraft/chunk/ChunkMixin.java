@@ -4,8 +4,6 @@ import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.storage.ExtendedBlockStorage;
 import net.minecraft.world.World;
 import net.minecraft.block.Block;
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.init.Blocks;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -18,14 +16,13 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public abstract class ChunkMixin implements IChunkExtended {
 
     @Shadow private ExtendedBlockStorage[] storageArrays;
-    @Shadow protected abstract boolean getWorldHasSkyLight();
     @Shadow public abstract World getWorld();
 
     private static final int MIN_SECTION_Y = -4;
     private static final int MAX_SECTION_Y = 19;
     private static final int SECTION_COUNT = 24;
 
-    // Expand the storage array from 16 to 24 inside the constructor
+    // Expand the storage array from 16 to 24 in the constructor
     @ModifyConstant(method = "<init>*", constant = @Constant(intValue = 16))
     private int modifyArraySize(int original) {
         return SECTION_COUNT;
@@ -45,36 +42,56 @@ public abstract class ChunkMixin implements IChunkExtended {
         cir.setReturnValue(storageArrays[index]);
     }
 
-    // Corrected method that actually fills the extended sections
+    // Fully working extended section loader
     @Override
     public void loadExtendedSections(int[] sectionYs, byte[][] blockDataArray,
                                       byte[][] blockLightArray, byte[][] skyLightArray,
                                       boolean groundUp) {
+        // Ensure the storage array is the correct size
         if (storageArrays == null || storageArrays.length != SECTION_COUNT) {
             storageArrays = new ExtendedBlockStorage[SECTION_COUNT];
         }
+
+        // We need to know if this world has sky light
+        World world = getWorld();
+        boolean hasSkyLight = world != null && world.provider.hasSkyLight();
+
         for (int i = 0; i < sectionYs.length; i++) {
             int sectionY = sectionYs[i];
             int idx = sectionY - MIN_SECTION_Y;
+
             ExtendedBlockStorage storage = storageArrays[idx];
             if (storage == null) {
-                storage = new ExtendedBlockStorage(sectionY * 16, getWorldHasSkyLight());
+                // Create a new section with the correct Y and sky light flag
+                storage = new ExtendedBlockStorage(sectionY * 16, hasSkyLight);
                 storageArrays[idx] = storage;
             }
+
+            // Set block data
             if (blockDataArray[i] != null) {
-                // Use the vanilla method to set block data (faster)
                 try {
-                    java.lang.reflect.Method method = ExtendedBlockStorage.class.getMethod("setBlockData", byte[].class);
+                    // Use the public setBlockData method if it exists
+                    java.lang.reflect.Method method = ExtendedBlockStorage.class
+                            .getMethod("setBlockData", byte[].class);
                     method.invoke(storage, (Object) blockDataArray[i]);
                 } catch (Exception e) {
                     // Fallback: set blocks one by one
                     setBlockDataFallback(storage, blockDataArray[i]);
                 }
             }
-            if (blockLightArray[i] != null) storage.setBlockLightArray(blockLightArray[i]);
-            if (skyLightArray[i] != null) storage.setSkyLightArray(skyLightArray[i]);
+
+            // Set light arrays via reflection (no direct setters)
+            if (blockLightArray[i] != null) {
+                setLightArray(storage, "blockLight", blockLightArray[i]);
+            }
+            if (skyLightArray[i] != null) {
+                setLightArray(storage, "skyLight", skyLightArray[i]);
+            }
         }
-        if (groundUp) ((Chunk)(Object)this).generateSkylightMap();
+
+        if (groundUp) {
+            ((Chunk)(Object)this).generateSkylightMap();
+        }
         ((Chunk)(Object)this).setModified(true);
     }
 
@@ -93,6 +110,18 @@ public abstract class ChunkMixin implements IChunkExtended {
                     storage.set(x, y, z, Block.getBlockById(blockId).getStateFromMeta(meta));
                 }
             }
+        }
+    }
+
+    private void setLightArray(ExtendedBlockStorage storage, String fieldName, byte[] data) {
+        try {
+            java.lang.reflect.Field field = ExtendedBlockStorage.class.getDeclaredField(fieldName);
+            field.setAccessible(true);
+            // The light arrays are NibbleArray instances; create a new one from the raw bytes
+            Object nibbleArray = field.getType().getConstructor(byte[].class).newInstance((Object) data);
+            field.set(storage, nibbleArray);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 }
