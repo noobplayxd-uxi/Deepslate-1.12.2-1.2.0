@@ -1,5 +1,0 @@
-# Enable extended chunk support for 1.12.2 clients
-# When a client registers the "extchunk" channel, ViaBackwards will
-# automatically send the full 24‑section chunks (Y -64 to 319) through it.
-chunk-extended: true
-custom-channel: extchunk
