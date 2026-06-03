@@ -7,9 +7,9 @@ import com.yourname.deepslateexpansion.proxy.ProxyLauncher;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.SidedProxy;
-import net.minecraftforge.fml.common.event.FMLInitializationEvent;
-import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
-import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import net.minecraftforge.fml.common.event.*;
+import net.minecraftforge.fml.common.gameevent.PlayerEvent;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 @Mod(modid = DeepslateExpansion.MODID, name = DeepslateExpansion.NAME, version = DeepslateExpansion.VERSION)
 public class DeepslateExpansion {
@@ -31,15 +31,23 @@ public class DeepslateExpansion {
 
     @Mod.EventHandler
     public void init(FMLInitializationEvent event) {
-        // Start the embedded proxy automatically (needs Java 17 path set in ProxyLauncher)
+        // Start the embedded proxy with Java 17 (via mini JRE)
         try {
             ProxyLauncher.startProxy();
         } catch (Exception e) {
             System.err.println("[DeepslateExpansion] Could not start proxy: " + e.getMessage());
         }
 
-        // Register the vanilla extchunk listener (handles raw ViaBackwards payloads)
+        // Register the vanilla extchunk listener
         MinecraftForge.EVENT_BUS.register(new VanillaExtChunkListener());
+
+        // Automatically register the extchunk channel when the player joins a world
+        MinecraftForge.EVENT_BUS.register(new Object() {
+            @SubscribeEvent
+            public void onPlayerLogin(PlayerEvent.PlayerLoggedInEvent event) {
+                VanillaExtChunkListener.registerExtChunkChannel();
+            }
+        });
 
         proxy.init(event);
     }
