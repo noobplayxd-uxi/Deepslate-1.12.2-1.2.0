@@ -11,7 +11,8 @@
     "minecraft.chunk.ChunkMixin"
   ],
   "client": [
-    "minecraft.client.network.NetHandlerPlayClientMixin"
+    "minecraft.client.network.NetHandlerPlayClientMixin",
+    "minecraft.client.network.BlockIdOverrideMixin"
   ],
   "server": []
 }
