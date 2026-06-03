@@ -7,35 +7,39 @@ import java.util.zip.*;
 public class ProxyLauncher {
     private static Process proxyProcess;
 
-    /**
-     * Extracts the embedded proxy files (BungeeCord, plugins, configs, Java 17)
-     * and starts the proxy server in the background.
-     */
     public static void startProxy() {
         try {
-            // 1. Create a temporary directory for the proxy
             Path tempDir = Files.createTempDirectory("deepslateproxy");
             File dir = tempDir.toFile();
             dir.mkdirs();
 
-            // 2. List of resources to extract (source path in JAR → destination file name)
-            //    Note: ViaBackwards/config.yml is intentionally omitted – it's not required
-            //    because the chunk‑extended feature is handled entirely by ViaVersion.
+            // Files to extract – configs are optional and will be skipped if missing
             String[][] resources = {
-                { "/proxy/BungeeCord.jar", "BungeeCord.jar" },
-                { "/proxy/config.yml", "config.yml" },
-                { "/proxy/plugins/ViaVersion.jar", "plugins/ViaVersion.jar" },
-                { "/proxy/plugins/ViaBackwards.jar", "plugins/ViaBackwards.jar" },
-                { "/proxy/plugins/ViaVersion/config.yml", "plugins/ViaVersion/config.yml" },
-                { "/proxy/java17.zip", "java17.zip" }
+                { "/proxy/BungeeCord.jar", "BungeeCord.jar", "required" },
+                { "/proxy/config.yml", "config.yml", "required" },
+                { "/proxy/plugins/ViaVersion.jar", "plugins/ViaVersion.jar", "required" },
+                { "/proxy/plugins/ViaBackwards.jar", "plugins/ViaBackwards.jar", "required" },
+                { "/proxy/plugins/ViaVersion/config.yml", "plugins/ViaVersion/config.yml", "optional" },
+                { "/proxy/java17.zip", "java17.zip", "required" }
             };
 
             for (String[] entry : resources) {
-                extractResource(entry[0], new File(dir, entry[1]));
+                try {
+                    extractResource(entry[0], new File(dir, entry[1]));
+                } catch (FileNotFoundException e) {
+                    if ("required".equals(entry[2])) {
+                        throw e;   // stop if a required file is missing
+                    } else {
+                        System.err.println("[DeepslateExpansion] Optional file not found, continuing: " + entry[0]);
+                    }
+                }
             }
 
-            // 3. Unzip the mini Java 17 JRE
+            // Unzip the mini JRE
             File javaZip = new File(dir, "java17.zip");
+            if (!javaZip.exists()) {
+                throw new FileNotFoundException("java17.zip not found – cannot start proxy.");
+            }
             File javaDir = new File(dir, "java17");
             javaDir.mkdirs();
             try (ZipInputStream zis = new ZipInputStream(new FileInputStream(javaZip))) {
@@ -51,41 +55,28 @@ public class ProxyLauncher {
                     zis.closeEntry();
                 }
             }
-            // Delete the zip after extraction to save space
             javaZip.delete();
 
-            // 4. Build the path to the mini Java executable
             String javaExe = new File(javaDir, "bin/java.exe").getAbsolutePath();
-
-            // 5. Start BungeeCord with the mini Java 17
             ProcessBuilder pb = new ProcessBuilder(javaExe, "-jar", "BungeeCord.jar");
             pb.directory(dir);
-            // Redirect proxy output to the Minecraft console (optional, can be removed)
             pb.redirectOutput(ProcessBuilder.Redirect.INHERIT);
             pb.redirectError(ProcessBuilder.Redirect.INHERIT);
 
             proxyProcess = pb.start();
             System.out.println("[DeepslateExpansion] Local proxy started with mini Java 17.");
-
         } catch (Exception e) {
-            System.err.println("[DeepslateExpansion] Failed to start proxy:");
-            e.printStackTrace();
+            System.err.println("[DeepslateExpansion] Failed to start proxy: " + e.getMessage());
+            // Don't print full stack trace unless needed for debugging
         }
     }
 
-    /**
-     * Stops the proxy when the game shuts down.
-     */
     public static void stopProxy() {
         if (proxyProcess != null && proxyProcess.isAlive()) {
             proxyProcess.destroy();
-            System.out.println("[DeepslateExpansion] Local proxy stopped.");
         }
     }
 
-    /**
-     * Extracts a single resource from the mod's JAR to a file on disk.
-     */
     private static void extractResource(String resourcePath, File destination) throws IOException {
         try (InputStream in = ProxyLauncher.class.getResourceAsStream(resourcePath)) {
             if (in == null) {
